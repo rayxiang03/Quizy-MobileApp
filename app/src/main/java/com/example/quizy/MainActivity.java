@@ -38,9 +38,9 @@ public class MainActivity extends Activity {
     private void checkAnswer(boolean userAnswer) {
 
         if (userAnswer == question.isAnswerTrue()) {
-            Toast.makeText(this, user.getName()+ " , Correct!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, user.getName() + " , Correct!", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, user.getName()+ " , Incorrect!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, user.getName() + " , Incorrect!", Toast.LENGTH_SHORT).show();
         }
     }
 }
