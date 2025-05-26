@@ -1,5 +1,6 @@
 package com.example.quizy;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +19,9 @@ public class MainActivity extends Activity {
             new Question("Water boils at 100°C.", true)
     };
     private int currentIndex = 0;
+    private int score = 0;
+    private boolean[] answeredQuestions = new boolean[5]; // Track which questions have been answered
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +66,9 @@ public class MainActivity extends Activity {
         Log.d(TAG, "Current index: " + currentIndex);
         updateQuestion();
         Toast.makeText(this, "Next Question Loading...", Toast.LENGTH_SHORT).show();
+        
+        // Check if quiz is completed
+        checkQuizCompletion();
     }
     
     private void moveToPrevQuestion() {
@@ -73,12 +80,45 @@ public class MainActivity extends Activity {
     
     private void checkAnswer(boolean userAnswer) {
         boolean correctAnswer = questionBank[currentIndex].isAnswerTrue();
-        if (userAnswer == correctAnswer) {
-            Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Answer was Correct.");
+        
+        // Only count score if this question hasn't been answered before
+        if (!answeredQuestions[currentIndex]) {
+            answeredQuestions[currentIndex] = true;
+            if (userAnswer == correctAnswer) {
+                score++;
+                Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Answer was Correct. Score: " + score);
+            } else {
+                Toast.makeText(this, "Incorrect!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Answer was Incorrect. Score: " + score);
+            }
         } else {
-            Toast.makeText(this, "Incorrect!", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Answer was Incorrect.");
+            // Question already answered, just show feedback
+            if (userAnswer == correctAnswer) {
+                Toast.makeText(this, "Correct! (Already answered)", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Incorrect! (Already answered)", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    private void checkQuizCompletion() {
+        // Check if all questions have been answered
+        boolean allAnswered = true;
+        for (boolean answered : answeredQuestions) {
+            if (!answered) {
+                allAnswered = false;
+                break;
+            }
+        }
+        
+        if (allAnswered) {
+            // Quiz completed, navigate to ResultActivity
+            Intent intent = new Intent(MainActivity.this, ResultActivity.class);
+            intent.putExtra("QUIZ_SCORE", score);
+            intent.putExtra("TOTAL_QUESTIONS", questionBank.length);
+            startActivity(intent);
+            finish(); // Close MainActivity to prevent back navigation
         }
     }
 }
